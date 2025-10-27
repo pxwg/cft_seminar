@@ -1,0 +1,49 @@
+name: Update Refs
+
+on:
+  push:
+    tags:
+      - '*'
+    branches:
+      - main
+
+jobs:
+  package-and-release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up variables
+        id: vars
+        run: |
+          REF_NAME="${GITHUB_REF##*/}"
+          echo "ref_name=$REF_NAME" >> $GITHUB_OUTPUT
+
+      - name: Create zip archive
+        run: |
+          zip -r "${{ steps.vars.outputs.ref_name }}.zip" .
+
+      - name: Create tar.gz archive
+        run: |
+          tar czf "${{ steps.vars.outputs.ref_name }}.tar.gz" .
+
+      - name: Create Release
+        id: create_release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.vars.outputs.ref_name }}
+          name: ${{ steps.vars.outputs.ref_name }}
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload Release Assets
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            ${{ steps.vars.outputs.ref_name }}.zip
+            ${{ steps.vars.outputs.ref_name }}.tar.gz
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
