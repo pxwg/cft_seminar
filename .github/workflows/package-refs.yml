@@ -20,13 +20,13 @@ jobs:
           REF_NAME="${GITHUB_REF##*/}"
           echo "ref_name=$REF_NAME" >> $GITHUB_OUTPUT
 
-      - name: Create zip archive
+      - name: Create zip archive of refs
         run: |
-          zip -r "${{ steps.vars.outputs.ref_name }}.zip" .
+          zip -r "${{ steps.vars.outputs.ref_name }}.zip" refs
 
-      - name: Create tar.gz archive
+      - name: Create tar.gz archive of refs
         run: |
-          tar czf "${{ steps.vars.outputs.ref_name }}.tar.gz" .
+          tar czf "${{ steps.vars.outputs.ref_name }}.tar.gz" refs
 
       - name: Create Release
         id: create_release
